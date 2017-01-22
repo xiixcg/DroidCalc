@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Hello">Hello World, Click Me!</string>
+    <string name="ApplicationName">DroidCalc</string>
+    <string name="CameraButton">CAPTURE</string>
+    <string name="Total">Bill Amount:</string>
+    <string name="PeopleCount">No. of People:</string>
+    <string name="TotalPerPerson">Bill/Person:</string>
+    <string name="TipPercent">Tip(%):</string>
+    <string name="Tip">Tip:</string>
+    <string name="TotalWithTip">Total:</string>
+    <string name="InitialAmountValue">0.00</string>
+    <string name="InitialPeopleCount">1</string>
+    <string name="MinusSign">-</string>
+    <string name="PlusSign">+</string>
+    <string name="One">1</string>
+    <string name="Two">2</string>
+    <string name="Three">3</string>
+    <string name="Four">4</string>
+    <string name="Five">5</string>
+    <string name="Six">6</string>
+    <string name="Seven">7</string>
+    <string name="Eight">8</string>
+    <string name="Nine">9</string>
+    <string name="Zero">0</string>
+    <string name="Decimal">.</string>
+    <string name="Backspace">⌫</string>
+    <string name="Cancel">Cancel</string>
+    <string name="OK">OK</string>
+</resources>
