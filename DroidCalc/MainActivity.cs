@@ -9,7 +9,10 @@ using Android.Views;
 using System.Collections.Generic;
 using Android.Runtime;
 using Java.IO;
+using System.IO;
 using Android.Graphics;
+using Android.Provider;
+using Android.Content.PM;
 
 namespace DroidCalc
 {
@@ -17,6 +20,7 @@ namespace DroidCalc
     public class MainActivity : Activity
     {
         TextView oTextView;
+        string sDirectoryPath;
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -121,11 +125,14 @@ namespace DroidCalc
                 oTotalWithTip.Text = oEditor.editNumberIncrement(oTotalWithTip.Text);
             };
 
-            //Onclick response for button
-            oCaptureReceipt.Click += delegate
+            //Check if there is app to take picture
+            if (IsThereAnAppToTakePictures())
             {
-            
-            };
+                //Create directory for the picture to store
+                CreateDirectoryForPictures();
+                //OnClick response for Capture button
+                oCaptureReceipt.Click += TakeAPicture;          
+            }
 
             //OnTextChange response for each TextView
             oTotal.AfterTextChanged += delegate
@@ -166,8 +173,59 @@ namespace DroidCalc
             base.OnActivityResult(nRequestCode, eResultCode, oData);
             if (eResultCode == Result.Ok)
             {
-                oTextView.Text = oData.Extras.GetString("NewNumber");
+                if (oTextView != null)
+                {
+                    oTextView.Text = oData.Extras.GetString("NewNumber");
+                }
             }
+
+            // Make it available in the gallery
+
+            Intent mediaScanIntent = new Intent(Intent.ActionMediaScannerScanFile);
+            Android.Net.Uri contentUri = Android.Net.Uri.FromFile(App._file);
+            mediaScanIntent.SetData(contentUri);
+            SendBroadcast(mediaScanIntent);
+
+            // Dispose of the Java side bitmap.
+            GC.Collect();
+        }
+
+        private void CreateDirectoryForPictures()
+        {
+            //Sucessfully created directory but can't use it to set the picture as content yet
+            //sDirectoryPath = "/sdcard/Calculate/";
+            //Directory.CreateDirectory(sDirectoryPath);   
+
+            App._dir = new Java.IO.File(
+                Android.OS.Environment.GetExternalStoragePublicDirectory(
+                    Android.OS.Environment.DirectoryPictures), "ReceiptHistory");
+            if (!App._dir.Exists())
+            {
+                App._dir.Mkdirs();
+            }
+         }
+
+        private bool IsThereAnAppToTakePictures()
+        {
+            Intent intent = new Intent(MediaStore.ActionImageCapture);
+            IList<ResolveInfo> availableActivities =
+                PackageManager.QueryIntentActivities(intent, PackageInfoFlags.MatchDefaultOnly);
+            return availableActivities != null && availableActivities.Count > 0;
+        }
+
+        private void TakeAPicture(object sender, EventArgs eventArgs)
+        {
+            //Sucessfully created directory and file but can't use it to set the returning pictur as content yet
+            //sDirectoryPath = sDirectoryPath + String.Format("my_receipt{0}.jpg", (DateTime.Now).ToFileTime());
+            //System.IO.File.Create(sDirectoryPath);
+            //System.Console.WriteLine("DateForm: " + DateTime.Now.Year + DateTime.Now.Month + DateTime.Now.Day + DateTime.Now.Hour + DateTime.Now.Minute + DateTime.Now.Second + DateTime.Now.Millisecond);
+            //intent.PutExtra(MediaStore.ExtraOutput, sDirectoryPath);
+
+            Intent intent = new Intent(MediaStore.ActionImageCapture);            
+            App._file = new Java.IO.File(App._dir, String.Format("myReceipt{0}{1}{2}_{3}.jpg", DateTime.Now.Year, 
+                DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour + DateTime.Now.Minute + DateTime.Now.Second));
+            intent.PutExtra(MediaStore.ExtraOutput, Android.Net.Uri.FromFile(App._file));
+            StartActivityForResult(intent, 0);
         }
     }
         
@@ -219,11 +277,10 @@ namespace DroidCalc
             return oIntent;
         }
     }
-
     public static class App
     {
-        public static File _file;
-        public static File _dir;
+        public static Java.IO.File _file;
+        public static Java.IO.File _dir;
         public static Bitmap bitmap;
     }
 }
