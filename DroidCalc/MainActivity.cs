@@ -21,6 +21,7 @@ namespace DroidCalc
     {
         TextView oTextView;
         string sDirectoryPath;
+        bool bIsPictureTaken = true;
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -180,14 +181,17 @@ namespace DroidCalc
             }
 
             // Make it available in the gallery
+            if (!bIsPictureTaken)
+            {
+                Intent mediaScanIntent = new Intent(Intent.ActionMediaScannerScanFile);
+                Android.Net.Uri contentUri = Android.Net.Uri.FromFile(App._file);
+                mediaScanIntent.SetData(contentUri);
+                SendBroadcast(mediaScanIntent);
 
-            Intent mediaScanIntent = new Intent(Intent.ActionMediaScannerScanFile);
-            Android.Net.Uri contentUri = Android.Net.Uri.FromFile(App._file);
-            mediaScanIntent.SetData(contentUri);
-            SendBroadcast(mediaScanIntent);
-
-            // Dispose of the Java side bitmap.
-            GC.Collect();
+                // Dispose of the Java side bitmap.
+                GC.Collect();
+                bIsPictureTaken = true;
+            }
         }
 
         private void CreateDirectoryForPictures()
@@ -221,6 +225,8 @@ namespace DroidCalc
             //System.Console.WriteLine("DateForm: " + DateTime.Now.Year + DateTime.Now.Month + DateTime.Now.Day + DateTime.Now.Hour + DateTime.Now.Minute + DateTime.Now.Second + DateTime.Now.Millisecond);
             //intent.PutExtra(MediaStore.ExtraOutput, sDirectoryPath);
 
+            bIsPictureTaken = false;
+            oTextView = null;
             Intent intent = new Intent(MediaStore.ActionImageCapture);            
             App._file = new Java.IO.File(App._dir, String.Format("myReceipt{0}{1}{2}_{3}.jpg", DateTime.Now.Year, 
                 DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour + DateTime.Now.Minute + DateTime.Now.Second));
